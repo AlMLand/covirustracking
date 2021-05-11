@@ -28,7 +28,7 @@ public class CoVirusDataService {
 	@Getter
 	private List<Location> allStats = new ArrayList<>();
 
-	@Scheduled(cron = "* * 1 * * *")
+	@Scheduled(cron = "* * 1 * * *")	
 	@PostConstruct
 	public void fetchCoVirusData() throws IOException, InterruptedException {
 		List<Location> newStats = new ArrayList<>();
@@ -45,9 +45,19 @@ public class CoVirusDataService {
 			newStats.add(Location.builder()
 					.state(record.get("Province/State"))
 					.country(record.get("Country/Region"))
-					.lastestTotalCases(Integer.parseInt(record.get(record.size() - 1))).build());
+					.latestTotalCases(Integer.parseInt(record.get(record.size() - 1)))
+					.deltaTheDayBefore(Integer.parseInt(record.get(record.size() - 1)) - Integer.parseInt(record.get(record.size() - 2)))
+					.build());
 		}
 		this.allStats = newStats;
+	}
+	
+	public int getTotalReportedCases() {
+		return allStats.stream().mapToInt(stat -> stat.getLatestTotalCases()).sum();
+	}
+	
+	public int getTotalReportedDeltaTheDayBefore() {
+		return allStats.stream().mapToInt(stat -> stat.getDeltaTheDayBefore()).sum();
 	}
 
 }
