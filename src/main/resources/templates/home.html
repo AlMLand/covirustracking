@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+	<html xmlns:th="http://www.thymeleaf.org">
+		
+		<head>
+			<meta charset="ISO-8859-1">
+			<title>CoVirus</title>
+			<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+		</head>
+		
+		<body>
+			<div class="container">
+				<div class="jumbotron" style="background:#D3D3D3 !important">
+				  	<h1 class="display-4">Total Cases Reported Worldwide</h1>
+				  	<h1 class="display-4" th:text="${totalReportedCases}"></h1>
+				  	<hr class="my-4">
+				  	<span>Total Reported Delta The Day Before</span>
+				  	<span th:text="${TotalReportedDeltaTheDayBefore}"></span>
+				</div>
+				<table class="table table-striped">
+					<tr>
+						<th>No</th>
+						<th>Province/State</th>
+						<th>Country/Region</th>
+						<th>Latest Total Cases</th>
+						<th>Delta The Day Before</th>
+					</tr>
+					<tr th:if="${#lists.isEmpty(locationStatistics)}">
+						<td colspan="5" th:text="#{No data available}"></td>
+					</tr>
+					<tr th:each="location,state:${locationStatistics}">
+						<td th:utext="${state.count}"></td>
+						<td th:utext="${location.state}"></td>
+						<td th:utext="${location.country}"></td>
+						<td th:utext="${location.latestTotalCases}"></td>
+						<td th:utext="${location.deltaTheDayBefore}"></td>
+					</tr>
+				</table>
+				
+				<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
+			</div>
+		</body>
+		
+	</html>
