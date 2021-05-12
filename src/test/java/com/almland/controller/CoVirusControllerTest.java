@@ -43,7 +43,7 @@ public class CoVirusControllerTest {
 	}
 	
 	@Test
-	public void getHome_() throws Exception {
+	public void getHome_ShouldAddThreeModelAndRenderView() throws Exception {
 		mockMvc.perform(get("/"))
 			.andExpect(status().isOk())
 			.andExpect(view().name("home"))
