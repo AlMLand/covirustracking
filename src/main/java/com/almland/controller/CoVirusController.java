@@ -15,7 +15,7 @@ public class CoVirusController {
 	
 	@GetMapping
 	public String getHome(Model model) {
-		model.addAttribute("TotalReportedDeltaTheDayBefore", coVirusDataService.getTotalReportedDeltaTheDayBefore());
+		model.addAttribute("totalReportedDeltaTheDayBefore", coVirusDataService.getTotalReportedDeltaTheDayBefore());
 		model.addAttribute("totalReportedCases", coVirusDataService.getTotalReportedCases());
 		model.addAttribute("locationStatistics", coVirusDataService.getAllStats());
 		return "home";
