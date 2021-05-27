@@ -8,7 +8,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 
@@ -26,12 +26,12 @@ public class CoVirusDataService {
 
 	private final String CO_VIRUS_DATASOURCE_JOHNS_HOPKINS_UNIVERSITY_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv";
 	@Getter
-	private List<Location> allStats = new ArrayList<>();
+	private Collection<Location> allStats = new ArrayList<>();
 
 	@Scheduled(cron = "* * 1 * * *")	
 	@PostConstruct
 	public void fetchCoVirusData() throws IOException, InterruptedException {
-		List<Location> newStats = new ArrayList<>();
+		Collection<Location> newStats = new ArrayList<>();
 
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(CO_VIRUS_DATASOURCE_JOHNS_HOPKINS_UNIVERSITY_URL))
