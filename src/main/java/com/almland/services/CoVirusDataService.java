@@ -19,45 +19,58 @@ import org.springframework.stereotype.Service;
 
 import com.almland.data.Location;
 
-import lombok.Getter;
-
 @Service
 public class CoVirusDataService {
 
-	private final String CO_VIRUS_DATASOURCE_JOHNS_HOPKINS_UNIVERSITY_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv";
-	@Getter
+	private final static String CO_VIRUS_DATASOURCE_JOHNS_HOPKINS_UNIVERSITY_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv";
+
 	private Collection<Location> allStats = new ArrayList<>();
+	private Collection<Location> newStats = new ArrayList<>();
 
-	@Scheduled(cron = "* * 1 * * *")	
+	@Scheduled(cron = "* * 1 * * *")
 	@PostConstruct
-	public void fetchCoVirusData() throws IOException, InterruptedException {
-		Collection<Location> newStats = new ArrayList<>();
+	private void fetchCoVirusData() throws IOException, InterruptedException {
+		HttpResponse<String> response = callOfUrl();
+		readDataFromResponse(response);
 
-		HttpClient client = HttpClient.newHttpClient();
-		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(CO_VIRUS_DATASOURCE_JOHNS_HOPKINS_UNIVERSITY_URL))
-				.build();
-		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+		this.allStats = this.newStats;
+	}
 
+	private void readDataFromResponse(HttpResponse<String> response) throws IOException {
 		Reader reader = new StringReader(response.body());
 		Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
 
+		addNewDataToNewStats(records);
+	}
+
+	private void addNewDataToNewStats(Iterable<CSVRecord> records) {
 		for (CSVRecord record : records) {
-			newStats.add(Location.builder()
-					.state(record.get("Province/State"))
-					.country(record.get("Country/Region"))
-					.latestTotalCases(Integer.parseInt(record.get(record.size() - 1)))
-					.deltaTheDayBefore(Integer.parseInt(record.get(record.size() - 1)) - Integer.parseInt(record.get(record.size() - 2)))
-					.build());
+			this.newStats
+					.add(Location.builder().state(record.get("Province/State")).country(record.get("Country/Region"))
+							.latestTotalCases(Integer.parseInt(record.get(record.size() - 1)))
+							.deltaTheDayBefore(Integer.parseInt(record.get(record.size() - 1))
+									- Integer.parseInt(record.get(record.size() - 2)))
+							.build());
 		}
-		this.allStats = newStats;
 	}
-	
+
+	private HttpResponse<String> callOfUrl() throws IOException, InterruptedException {
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(CO_VIRUS_DATASOURCE_JOHNS_HOPKINS_UNIVERSITY_URL))
+				.build();
+		return client.send(request, HttpResponse.BodyHandlers.ofString());
+	}
+
 	public int getTotalReportedCases() {
-		return allStats.stream().mapToInt(stat -> stat.getLatestTotalCases()).sum();
+		return this.allStats.stream().mapToInt(stat -> stat.getLatestTotalCases()).sum();
 	}
-	
+
 	public int getTotalReportedDeltaTheDayBefore() {
-		return allStats.stream().mapToInt(stat -> stat.getDeltaTheDayBefore()).sum();
+		return this.allStats.stream().mapToInt(stat -> stat.getDeltaTheDayBefore()).sum();
+	}
+
+	public Collection<Location> getAllStats() {
+		return allStats;
 	}
 
 }
